@@ -4,9 +4,11 @@ import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
 import {
   formatCard,
+  formatCollection,
   formatPagination,
   formatUrlView,
   type CardLike,
+  type CollectionLike,
   type PaginationLike,
   type UrlViewLike,
 } from '../format.js';
@@ -142,6 +144,91 @@ export function registerCardTools(server: McpServer, client: SembleClient) {
         (body) => ({
           cards: body.cards.map(formatCard),
           pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_user_cards',
+    {
+      description:
+        "List the cards in another user's Semble library, paginated. " +
+        'Identify the user by handle or DID (from get_user_profile or search results).',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+        urlType: urlTypeSchema.optional(),
+        page: pageSchema,
+        limit: limitSchema,
+        sortBy: z
+          .enum(['createdAt', 'updatedAt', 'libraryCount'])
+          .optional()
+          .describe('Sort field'),
+        sortOrder: z.enum(['asc', 'desc']).optional(),
+      },
+    },
+    async ({ identifier, urlType, page, limit, sortBy, sortOrder }) =>
+      callTool<{ cards: CardLike[]; pagination: PaginationLike }>(
+        () =>
+          client.cards.cardsByUser({
+            query: { identifier, urlType, page, limit, sortBy, sortOrder },
+          }),
+        (body) => ({
+          cards: body.cards.map(formatCard),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_similar_urls',
+    {
+      description:
+        'Find URLs on Semble semantically similar to a given URL ("more like this"). ' +
+        'Use semantic_search instead when starting from a text query.',
+      inputSchema: {
+        url: z.string().describe('The URL to find similar content for'),
+        urlType: urlTypeSchema.optional(),
+        threshold: z
+          .number()
+          .min(0)
+          .max(1)
+          .optional()
+          .describe('Minimum similarity score (0–1)'),
+        limit: limitSchema,
+        page: pageSchema,
+      },
+    },
+    async ({ url, urlType, threshold, limit, page }) =>
+      callTool<{ urls: UrlViewLike[]; pagination: PaginationLike }>(
+        () =>
+          client.search.similarUrls({
+            query: { url, urlType, threshold, limit, page },
+          }),
+        (body) => ({
+          urls: body.urls.map(formatUrlView),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_url_status',
+    {
+      description:
+        'Check whether a URL is already saved in your Semble library. ' +
+        'If saved, returns the existing card and its collections — use this ' +
+        'before add_url_to_library to avoid duplicates or to find the card ID for a URL.',
+      inputSchema: {
+        url: z.string().describe('The URL to check'),
+      },
+    },
+    async ({ url }) =>
+      callTool<{ card?: CardLike; collections?: CollectionLike[] }>(
+        () => client.cards.urlLibraryStatus({ query: { url } }),
+        (body) => ({
+          inLibrary: Boolean(body.card),
+          card: body.card ? formatCard(body.card) : undefined,
+          collections: body.collections?.map(formatCollection),
         }),
       ),
   );

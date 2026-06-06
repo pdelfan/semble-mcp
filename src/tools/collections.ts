@@ -72,6 +72,80 @@ export function registerCollectionTools(
   );
 
   server.registerTool(
+    'search_collections',
+    {
+      description:
+        'Search collections across all of Semble by name, paginated. ' +
+        'Optionally filter to one user (identifier) or by access type.',
+      inputSchema: {
+        searchText: z.string().optional().describe('Search terms'),
+        identifier: z
+          .string()
+          .optional()
+          .describe('Limit results to collections owned by this user (handle or DID)'),
+        accessType: z
+          .enum(['OPEN', 'CLOSED'])
+          .optional()
+          .describe('Filter by access type'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ searchText, identifier, accessType, page, limit }) =>
+      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
+        () =>
+          client.collections.searchCollections({
+            query: { searchText, identifier, accessType, page, limit },
+          }),
+        (body) => ({
+          collections: body.collections.map(formatCollection),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_user_collections',
+    {
+      description:
+        "List another user's Semble collections, paginated. " +
+        'Identify the user by handle or DID. Optionally filter by name with searchText.',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+        searchText: z
+          .string()
+          .optional()
+          .describe('Filter collections by name'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ identifier, searchText, page, limit }) =>
+      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
+        () =>
+          client.collections.collectionsByUser({
+            query: { identifier, searchText, page, limit },
+          }),
+        (body) => ({
+          collections: body.collections.map(formatCollection),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
     'get_collection',
     {
       description:
@@ -115,6 +189,48 @@ export function registerCollectionTools(
           cards: body.urlCards.map(formatCard),
           pagination: formatPagination(body.pagination),
         }),
+      ),
+  );
+
+  server.registerTool(
+    'update_collection',
+    {
+      description:
+        "Update a collection's name, description, or access type. " +
+        'name is required by the API — pass the current name to keep it unchanged.',
+      inputSchema: {
+        collectionId: z.string().describe('The collection ID'),
+        name: z
+          .string()
+          .describe('Collection name (pass the current name to keep it)'),
+        description: z.string().optional().describe('Collection description'),
+        accessType: z
+          .enum(['OPEN', 'CLOSED'])
+          .optional()
+          .describe('Who can contribute'),
+      },
+    },
+    async ({ collectionId, name, description, accessType }) =>
+      callTool(() =>
+        client.collections.updateCollection({
+          body: { collectionId, name, description, accessType },
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'delete_collection',
+    {
+      description:
+        'Permanently delete a collection you own. Cards filed in it stay in ' +
+        'your library; only the collection itself is removed. This cannot be undone.',
+      inputSchema: {
+        collectionId: z.string().describe('The collection ID to delete'),
+      },
+    },
+    async ({ collectionId }) =>
+      callTool(() =>
+        client.collections.deleteCollection({ body: { collectionId } }),
       ),
   );
 

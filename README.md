@@ -54,7 +54,10 @@ Add to `.cursor/mcp.json`:
 | `add_url_to_library` | Save a URL to your library, optionally with a note and collections |
 | `search_urls` | Full-text search URLs across all of Semble |
 | `semantic_search` | Natural-language semantic search across Semble URLs |
+| `get_similar_urls` | Find URLs similar to a given URL ("more like this") |
 | `list_my_cards` | List your library cards, paginated and filterable |
+| `get_user_cards` | List another user's library cards by handle or DID |
+| `get_url_status` | Check if a URL is already in your library (returns the card if so) |
 | `get_card` | Get a card with its note, collections, and savers |
 | `remove_card_from_library` | Remove a card from your library |
 
@@ -64,7 +67,11 @@ Add to `.cursor/mcp.json`:
 | --- | --- |
 | `create_collection` | Create a collection (OPEN or CLOSED) |
 | `list_my_collections` | List your collections |
+| `search_collections` | Search collections across Semble by name |
+| `get_user_collections` | List another user's collections by handle or DID |
 | `get_collection` | Get a collection and its cards |
+| `update_collection` | Rename a collection or change its description/access type |
+| `delete_collection` | Permanently delete a collection you own |
 | `update_card_collections` | File a card into / remove it from collections, update its note |
 
 ### Profile & Feeds

@@ -8,11 +8,18 @@ const EXPECTED_TOOLS = [
   'search_urls',
   'semantic_search',
   'list_my_cards',
+  'get_user_cards',
+  'get_similar_urls',
+  'get_url_status',
   'get_card',
   'remove_card_from_library',
   'create_collection',
   'list_my_collections',
+  'search_collections',
+  'get_user_collections',
   'get_collection',
+  'update_collection',
+  'delete_collection',
   'update_card_collections',
   'get_my_profile',
   'get_user_profile',
@@ -30,6 +37,8 @@ function mockClient() {
         addUrlToLibrary: ok,
         searchCards: ok,
         myUrlCards: ok,
+        cardsByUser: ok,
+        urlLibraryStatus: ok,
         cardById: ok,
         removeFromLibrary: ok,
         urlCardAssociations: ok,
@@ -37,18 +46,22 @@ function mockClient() {
       collections: {
         createCollection: ok,
         myCollections: ok,
+        searchCollections: ok,
+        collectionsByUser: ok,
         collectionById: ok,
+        updateCollection: ok,
+        deleteCollection: ok,
       },
       users: { myProfile: ok, userProfile: ok },
       feeds: { globalFeed: ok, followingFeed: ok },
-      search: { semantic: ok },
+      search: { semantic: ok, similarUrls: ok },
     } as unknown as SembleClient,
     ok,
   };
 }
 
 describe('registerAllTools', () => {
-  it('registers all 14 curated tools', () => {
+  it('registers all 21 curated tools', () => {
     const server = new McpServer({ name: 'test', version: '0' });
     const { client } = mockClient();
     registerAllTools(server, client);
