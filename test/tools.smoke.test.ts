@@ -5,7 +5,7 @@ import type { SembleClient } from '../src/client.js';
 
 const EXPECTED_TOOLS = [
   'add_url_to_library',
-  'search_my_cards',
+  'search_urls',
   'semantic_search',
   'list_my_cards',
   'get_card',

@@ -57,10 +57,11 @@ export function registerCardTools(server: McpServer, client: SembleClient) {
   );
 
   server.registerTool(
-    'search_my_cards',
+    'search_urls',
     {
       description:
-        'Full-text search the cards saved in your Semble library by title/URL.',
+        'Full-text search URLs across all of Semble by title, description, or URL. ' +
+        'Searches everyone’s saved cards, not just your library.',
       inputSchema: {
         searchQuery: z.string().describe('Search terms'),
         urlType: urlTypeSchema.optional(),
@@ -86,7 +87,7 @@ export function registerCardTools(server: McpServer, client: SembleClient) {
     {
       description:
         'Natural-language semantic (vector) search across URLs on Semble. ' +
-        'Use for conceptual queries; use search_my_cards for exact terms. ' +
+        'Use for conceptual queries; use search_urls for exact terms. ' +
         'Optionally scope to one user via identifier (handle or DID).',
       inputSchema: {
         query: z.string().describe('Natural-language search query'),

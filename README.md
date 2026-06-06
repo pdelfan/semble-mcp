@@ -52,7 +52,7 @@ Add to `.cursor/mcp.json`:
 | Tool | Description |
 | --- | --- |
 | `add_url_to_library` | Save a URL to your library, optionally with a note and collections |
-| `search_my_cards` | Full-text search your saved cards |
+| `search_urls` | Full-text search URLs across all of Semble |
 | `semantic_search` | Natural-language semantic search across Semble URLs |
 | `list_my_cards` | List your library cards, paginated and filterable |
 | `get_card` | Get a card with its note, collections, and savers |
