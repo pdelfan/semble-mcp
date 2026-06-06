@@ -7,6 +7,8 @@ A [Model Context Protocol](https://modelcontextprotocol.io) server for the [Semb
 1. Create a Semble API key at [semble.so/settings/api-keys](https://semble.so/settings/api-keys) — save it; you won't be able to view it again.
 2. Add the server to your MCP client with the key in the `SEMBLE_API_KEY` environment variable.
 
+Without an API key the server runs in **anonymous mode**: only the public read-only tools (search, public profiles, public collections, the global feed) are registered, and tools that touch your library are hidden.
+
 ### Claude Code
 
 ```sh
@@ -47,47 +49,49 @@ Add to `.cursor/mcp.json`:
 
 ## Tools
 
+Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous mode.
+
 ### Cards
 
 | Tool | Description |
 | --- | --- |
-| `add_url_to_library` | Save a URL to your library, optionally with a note and collections |
+| `add_url_to_library` 🔑 | Save a URL to your library, optionally with a note and collections |
 | `search_urls` | Full-text search URLs across all of Semble |
 | `semantic_search` | Natural-language semantic search across Semble URLs |
 | `get_similar_urls` | Find URLs similar to a given URL ("more like this") |
-| `list_my_cards` | List your library cards, paginated and filterable |
+| `list_my_cards` 🔑 | List your library cards, paginated and filterable |
 | `get_user_cards` | List another user's library cards by handle or DID |
-| `get_url_status` | Check if a URL is already in your library (returns the card if so) |
+| `get_url_status` 🔑 | Check if a URL is already in your library (returns the card if so) |
 | `get_card` | Get a card with its note, collections, and savers |
-| `remove_card_from_library` | Remove a card from your library |
+| `remove_card_from_library` 🔑 | Remove a card from your library |
 
 ### Collections
 
 | Tool | Description |
 | --- | --- |
-| `create_collection` | Create a collection (OPEN or CLOSED) |
-| `list_my_collections` | List your collections |
+| `create_collection` 🔑 | Create a collection (OPEN or CLOSED) |
+| `list_my_collections` 🔑 | List your collections |
 | `search_collections` | Search collections across Semble by name |
 | `get_user_collections` | List another user's collections by handle or DID |
 | `get_collection` | Get a collection and its cards |
-| `update_collection` | Rename a collection or change its description/access type |
-| `delete_collection` | Permanently delete a collection you own |
-| `update_card_collections` | File a card into / remove it from collections, update its note |
+| `update_collection` 🔑 | Rename a collection or change its description/access type |
+| `delete_collection` 🔑 | Permanently delete a collection you own |
+| `update_card_collections` 🔑 | File a card into / remove it from collections, update its note |
 
 ### Profile & Feeds
 
 | Tool | Description |
 | --- | --- |
-| `get_my_profile` | Your profile, optionally with stats |
+| `get_my_profile` 🔑 | Your profile, optionally with stats |
 | `get_user_profile` | A public profile by handle or DID |
 | `get_global_feed` | Recent activity across Semble |
-| `get_following_feed` | Activity from users/collections you follow |
+| `get_following_feed` 🔑 | Activity from users/collections you follow |
 
 ## Configuration
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `SEMBLE_API_KEY` | yes | Semble API key (`sk_...`) |
+| `SEMBLE_API_KEY` | no | Semble API key (`sk_...`); without it only public read-only tools are available |
 | `SEMBLE_BASE_URL` | no | Override the API base URL (default `https://api.semble.so/xrpc`) |
 
 ## Development

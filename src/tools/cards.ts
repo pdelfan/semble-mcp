@@ -36,28 +36,12 @@ const limitSchema = z
   .optional()
   .describe('Results per page');
 
-export function registerCardTools(server: McpServer, client: SembleClient) {
-  server.registerTool(
-    'add_url_to_library',
-    {
-      description:
-        'Save a URL to the Semble library as a card, optionally with a note ' +
-        'and/or filed into collections. Returns the new card ID.',
-      inputSchema: {
-        url: z.string().describe('The URL to save'),
-        note: z.string().optional().describe('A note to attach to the card'),
-        collectionIds: z
-          .array(z.string())
-          .optional()
-          .describe('Collection IDs to file the card into'),
-      },
-    },
-    async ({ url, note, collectionIds }) =>
-      callTool(() =>
-        client.cards.addUrlToLibrary({ body: { url, note, collectionIds } }),
-      ),
-  );
-
+export function registerCardTools(
+  server: McpServer,
+  client: SembleClient,
+  authenticated: boolean,
+) {
+  // Public tools — work without an API key.
   server.registerTool(
     'search_urls',
     {
@@ -109,40 +93,6 @@ export function registerCardTools(server: McpServer, client: SembleClient) {
           }),
         (body) => ({
           urls: body.urls.map(formatUrlView),
-          pagination: formatPagination(body.pagination),
-        }),
-      ),
-  );
-
-  server.registerTool(
-    'list_my_cards',
-    {
-      description:
-        'List the cards saved in your Semble library, paginated. ' +
-        'Set uncollected to true to see cards not yet filed into any collection.',
-      inputSchema: {
-        urlType: urlTypeSchema.optional(),
-        uncollected: z
-          .boolean()
-          .optional()
-          .describe('Only cards not in any collection'),
-        page: pageSchema,
-        limit: limitSchema,
-        sortBy: z
-          .enum(['createdAt', 'updatedAt', 'libraryCount'])
-          .optional()
-          .describe('Sort field'),
-        sortOrder: z.enum(['asc', 'desc']).optional(),
-      },
-    },
-    async ({ urlType, uncollected, page, limit, sortBy, sortOrder }) =>
-      callTool<{ cards: CardLike[]; pagination: PaginationLike }>(
-        () =>
-          client.cards.myUrlCards({
-            query: { urlType, uncollected, page, limit, sortBy, sortOrder },
-          }),
-        (body) => ({
-          cards: body.cards.map(formatCard),
           pagination: formatPagination(body.pagination),
         }),
       ),
@@ -212,6 +162,84 @@ export function registerCardTools(server: McpServer, client: SembleClient) {
   );
 
   server.registerTool(
+    'get_card',
+    {
+      description:
+        'Get a single Semble card by ID, including its note, collections, ' +
+        'and which users have it in their library.',
+      inputSchema: {
+        cardId: z.string().describe('The card ID'),
+      },
+    },
+    async ({ cardId }) =>
+      callTool<CardLike & { libraries?: { handle: string }[] }>(
+        () => client.cards.cardById({ query: { cardId } }),
+        (body) => ({
+          ...formatCard(body),
+          savedByUsers: body.libraries?.map((u) => u.handle),
+        }),
+      ),
+  );
+
+  // Authenticated tools — require SEMBLE_API_KEY.
+  if (!authenticated) return;
+
+  server.registerTool(
+    'add_url_to_library',
+    {
+      description:
+        'Save a URL to the Semble library as a card, optionally with a note ' +
+        'and/or filed into collections. Returns the new card ID.',
+      inputSchema: {
+        url: z.string().describe('The URL to save'),
+        note: z.string().optional().describe('A note to attach to the card'),
+        collectionIds: z
+          .array(z.string())
+          .optional()
+          .describe('Collection IDs to file the card into'),
+      },
+    },
+    async ({ url, note, collectionIds }) =>
+      callTool(() =>
+        client.cards.addUrlToLibrary({ body: { url, note, collectionIds } }),
+      ),
+  );
+
+  server.registerTool(
+    'list_my_cards',
+    {
+      description:
+        'List the cards saved in your Semble library, paginated. ' +
+        'Set uncollected to true to see cards not yet filed into any collection.',
+      inputSchema: {
+        urlType: urlTypeSchema.optional(),
+        uncollected: z
+          .boolean()
+          .optional()
+          .describe('Only cards not in any collection'),
+        page: pageSchema,
+        limit: limitSchema,
+        sortBy: z
+          .enum(['createdAt', 'updatedAt', 'libraryCount'])
+          .optional()
+          .describe('Sort field'),
+        sortOrder: z.enum(['asc', 'desc']).optional(),
+      },
+    },
+    async ({ urlType, uncollected, page, limit, sortBy, sortOrder }) =>
+      callTool<{ cards: CardLike[]; pagination: PaginationLike }>(
+        () =>
+          client.cards.myUrlCards({
+            query: { urlType, uncollected, page, limit, sortBy, sortOrder },
+          }),
+        (body) => ({
+          cards: body.cards.map(formatCard),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
     'get_url_status',
     {
       description:
@@ -229,26 +257,6 @@ export function registerCardTools(server: McpServer, client: SembleClient) {
           inLibrary: Boolean(body.card),
           card: body.card ? formatCard(body.card) : undefined,
           collections: body.collections?.map(formatCollection),
-        }),
-      ),
-  );
-
-  server.registerTool(
-    'get_card',
-    {
-      description:
-        'Get a single Semble card by ID, including its note, collections, ' +
-        'and which users have it in their library.',
-      inputSchema: {
-        cardId: z.string().describe('The card ID'),
-      },
-    },
-    async ({ cardId }) =>
-      callTool<CardLike & { libraries?: { handle: string }[] }>(
-        () => client.cards.cardById({ query: { cardId } }),
-        (body) => ({
-          ...formatCard(body),
-          savedByUsers: body.libraries?.map((u) => u.handle),
         }),
       ),
   );

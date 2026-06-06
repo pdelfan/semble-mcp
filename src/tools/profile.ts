@@ -4,27 +4,12 @@ import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
 import { formatUser, type UserLike } from '../format.js';
 
-export function registerProfileTools(server: McpServer, client: SembleClient) {
-  server.registerTool(
-    'get_my_profile',
-    {
-      description:
-        'Get the authenticated Semble user profile (handle, name, bio). ' +
-        'Set includeStats for follower/following/card/collection counts.',
-      inputSchema: {
-        includeStats: z
-          .boolean()
-          .optional()
-          .describe('Include follower, card, and collection counts'),
-      },
-    },
-    async ({ includeStats }) =>
-      callTool<UserLike>(
-        () => client.users.myProfile({ query: { includeStats } }),
-        formatUser,
-      ),
-  );
-
+export function registerProfileTools(
+  server: McpServer,
+  client: SembleClient,
+  authenticated: boolean,
+) {
+  // Public tool — works without an API key.
   server.registerTool(
     'get_user_profile',
     {
@@ -41,6 +26,29 @@ export function registerProfileTools(server: McpServer, client: SembleClient) {
     async ({ identifier, includeStats }) =>
       callTool<UserLike>(
         () => client.users.userProfile({ query: { identifier, includeStats } }),
+        formatUser,
+      ),
+  );
+
+  // Authenticated tool — requires SEMBLE_API_KEY.
+  if (!authenticated) return;
+
+  server.registerTool(
+    'get_my_profile',
+    {
+      description:
+        'Get the authenticated Semble user profile (handle, name, bio). ' +
+        'Set includeStats for follower/following/card/collection counts.',
+      inputSchema: {
+        includeStats: z
+          .boolean()
+          .optional()
+          .describe('Include follower, card, and collection counts'),
+      },
+    },
+    async ({ includeStats }) =>
+      callTool<UserLike>(
+        () => client.users.myProfile({ query: { includeStats } }),
         formatUser,
       ),
   );

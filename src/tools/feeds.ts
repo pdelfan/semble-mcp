@@ -44,7 +44,12 @@ const shapeFeed = (body: FeedBody) => ({
   pagination: formatPagination(body.pagination),
 });
 
-export function registerFeedTools(server: McpServer, client: SembleClient) {
+export function registerFeedTools(
+  server: McpServer,
+  client: SembleClient,
+  authenticated: boolean,
+) {
+  // Public tool — works without an API key.
   server.registerTool(
     'get_global_feed',
     {
@@ -61,6 +66,9 @@ export function registerFeedTools(server: McpServer, client: SembleClient) {
         shapeFeed,
       ),
   );
+
+  // Authenticated tool — requires SEMBLE_API_KEY.
+  if (!authenticated) return;
 
   server.registerTool(
     'get_following_feed',

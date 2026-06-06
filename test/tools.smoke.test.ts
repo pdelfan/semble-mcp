@@ -3,29 +3,34 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerAllTools } from '../src/tools/index.js';
 import type { SembleClient } from '../src/client.js';
 
-const EXPECTED_TOOLS = [
-  'add_url_to_library',
+const PUBLIC_TOOLS = [
   'search_urls',
   'semantic_search',
-  'list_my_cards',
   'get_user_cards',
   'get_similar_urls',
-  'get_url_status',
   'get_card',
-  'remove_card_from_library',
-  'create_collection',
-  'list_my_collections',
   'search_collections',
   'get_user_collections',
   'get_collection',
+  'get_user_profile',
+  'get_global_feed',
+];
+
+const AUTHENTICATED_TOOLS = [
+  'add_url_to_library',
+  'list_my_cards',
+  'get_url_status',
+  'remove_card_from_library',
+  'create_collection',
+  'list_my_collections',
   'update_collection',
   'delete_collection',
   'update_card_collections',
   'get_my_profile',
-  'get_user_profile',
-  'get_global_feed',
   'get_following_feed',
 ];
+
+const EXPECTED_TOOLS = [...PUBLIC_TOOLS, ...AUTHENTICATED_TOOLS];
 
 function mockClient() {
   const ok = jest
@@ -71,6 +76,17 @@ describe('registerAllTools', () => {
         ._registeredTools,
     );
     expect(names.sort()).toEqual([...EXPECTED_TOOLS].sort());
+  });
+
+  it('registers only the 10 public tools in anonymous mode', () => {
+    const server = new McpServer({ name: 'test', version: '0' });
+    const { client } = mockClient();
+    registerAllTools(server, client, false);
+    const names = Object.keys(
+      (server as unknown as { _registeredTools: Record<string, unknown> })
+        ._registeredTools,
+    );
+    expect(names.sort()).toEqual([...PUBLIC_TOOLS].sort());
   });
 
   it('maps add_url_to_library args to a body call', async () => {

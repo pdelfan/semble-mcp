@@ -14,63 +14,9 @@ import {
 export function registerCollectionTools(
   server: McpServer,
   client: SembleClient,
+  authenticated: boolean,
 ) {
-  server.registerTool(
-    'create_collection',
-    {
-      description:
-        'Create a new Semble collection. OPEN collections accept contributions ' +
-        'from anyone; CLOSED collections are curated only by you. Returns the new collection ID.',
-      inputSchema: {
-        name: z.string().describe('Collection name'),
-        description: z.string().optional().describe('Collection description'),
-        accessType: z
-          .enum(['OPEN', 'CLOSED'])
-          .optional()
-          .describe('Who can contribute (default CLOSED)'),
-      },
-    },
-    async ({ name, description, accessType }) =>
-      callTool(() =>
-        client.collections.createCollection({
-          body: { name, description, accessType },
-        }),
-      ),
-  );
-
-  server.registerTool(
-    'list_my_collections',
-    {
-      description:
-        'List your Semble collections, paginated. Optionally filter by name with searchText.',
-      inputSchema: {
-        searchText: z
-          .string()
-          .optional()
-          .describe('Filter collections by name'),
-        page: z.number().int().min(1).optional().describe('Page number'),
-        limit: z
-          .number()
-          .int()
-          .min(1)
-          .max(100)
-          .optional()
-          .describe('Results per page'),
-      },
-    },
-    async ({ searchText, page, limit }) =>
-      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
-        () =>
-          client.collections.myCollections({
-            query: { searchText, page, limit },
-          }),
-        (body) => ({
-          collections: body.collections.map(formatCollection),
-          pagination: formatPagination(body.pagination),
-        }),
-      ),
-  );
-
+  // Public tools — work without an API key.
   server.registerTool(
     'search_collections',
     {
@@ -187,6 +133,65 @@ export function registerCollectionTools(
         (body) => ({
           ...formatCollection(body),
           cards: body.urlCards.map(formatCard),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  // Authenticated tools — require SEMBLE_API_KEY.
+  if (!authenticated) return;
+
+  server.registerTool(
+    'create_collection',
+    {
+      description:
+        'Create a new Semble collection. OPEN collections accept contributions ' +
+        'from anyone; CLOSED collections are curated only by you. Returns the new collection ID.',
+      inputSchema: {
+        name: z.string().describe('Collection name'),
+        description: z.string().optional().describe('Collection description'),
+        accessType: z
+          .enum(['OPEN', 'CLOSED'])
+          .optional()
+          .describe('Who can contribute (default CLOSED)'),
+      },
+    },
+    async ({ name, description, accessType }) =>
+      callTool(() =>
+        client.collections.createCollection({
+          body: { name, description, accessType },
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'list_my_collections',
+    {
+      description:
+        'List your Semble collections, paginated. Optionally filter by name with searchText.',
+      inputSchema: {
+        searchText: z
+          .string()
+          .optional()
+          .describe('Filter collections by name'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ searchText, page, limit }) =>
+      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
+        () =>
+          client.collections.myCollections({
+            query: { searchText, page, limit },
+          }),
+        (body) => ({
+          collections: body.collections.map(formatCollection),
           pagination: formatPagination(body.pagination),
         }),
       ),
