@@ -1,0 +1,52 @@
+{
+  "name": "@semble.so/mcp",
+  "version": "0.0.1",
+  "description": "Model Context Protocol server for the Semble API",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "semble-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@semble.so/api": "^0.0.3",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@ts-rest/core": "^3.51.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.0",
+    "eslint": "^9.27.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "semble",
+    "bookmarks"
+  ]
+}
