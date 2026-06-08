@@ -69,8 +69,10 @@ Most tools are **global/public**: searches, feeds, \`get_user_*\`, \`get_card\`,
   \`get_user_cards\` to explore a saver → \`get_similar_urls\` to branch outward.
 - **Organize**: \`update_card_collections\` files an existing card into / out of
   collections and edits its note (this is the way to (re)collect a card).
-- **Preview a link**: \`get_url_metadata\` resolves a bare URL's title/site/type
-  without saving it — useful before \`add_url_to_library\`.
+- **Investigate a URL**: starting from a bare link, \`get_url_metadata\` resolves
+  its title/site/type (without saving), \`get_url_libraries\` shows who saved it,
+  \`get_url_notes\` shows what people wrote about it, \`get_url_collections\` shows
+  which collections hold it, and \`get_url_connections\` shows what it links to.
 - **Relate ideas**: \`create_connection\` links two URLs/cards with a type
   (\`SUPPORTS\`, \`OPPOSES\`, \`LEADS_TO\`, …); read them with \`get_url_connections\`
   (what links to/from a URL) or \`get_user_connections\`.

@@ -13,6 +13,7 @@ import {
   type PaginationLike,
   type UrlMetadataLike,
   type UrlViewLike,
+  type UserLike,
 } from '../format.js';
 
 const urlTypeSchema = z
@@ -205,6 +206,69 @@ export function registerCardTools(
         (body) => ({
           metadata: formatUrlMetadata(body.metadata),
           stats: body.stats,
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_url_libraries',
+    {
+      description:
+        'List the users who have saved a given URL to their library, with each ' +
+        "saver's note and when they saved it. Shows who finds a link valuable.",
+      inputSchema: {
+        url: z.string().describe('The URL to look up'),
+        page: pageSchema,
+        limit: limitSchema,
+      },
+    },
+    async ({ url, page, limit }) =>
+      callTool<{
+        libraries: { user: UserLike; card: CardLike }[];
+        pagination: PaginationLike;
+      }>(
+        () => client.cards.librariesForUrl({ query: { url, page, limit } }),
+        (body) => ({
+          libraries: body.libraries.map((entry) => ({
+            user: entry.user.handle,
+            savedAt: entry.card.createdAt,
+            note: entry.card.note?.text,
+          })),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_url_notes',
+    {
+      description:
+        'List the notes people have written about a given URL across Semble.',
+      inputSchema: {
+        url: z.string().describe('The URL to look up'),
+        page: pageSchema,
+        limit: limitSchema,
+      },
+    },
+    async ({ url, page, limit }) =>
+      callTool<{
+        notes: {
+          id: string;
+          note: string;
+          author: UserLike;
+          createdAt: string;
+        }[];
+        pagination: PaginationLike;
+      }>(
+        () => client.cards.noteCardsForUrl({ query: { url, page, limit } }),
+        (body) => ({
+          notes: body.notes.map((n) => ({
+            id: n.id,
+            note: n.note,
+            author: n.author.handle,
+            createdAt: n.createdAt,
+          })),
+          pagination: formatPagination(body.pagination),
         }),
       ),
   );

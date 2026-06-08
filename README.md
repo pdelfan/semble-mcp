@@ -69,6 +69,8 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `get_url_status` 🔑 | Check if a URL is already in your library (returns the card if so) |
 | `get_card` | Get a card with its note, collections, and savers |
 | `get_url_metadata` | Fetch a URL's title/description/site without saving it (preview) |
+| `get_url_libraries` | List users who have saved a given URL, with their notes |
+| `get_url_notes` | List notes people have written about a given URL |
 | `remove_card_from_library` 🔑 | Remove a card from your library |
 
 ### Collections
@@ -80,6 +82,7 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `search_collections` | Search collections across Semble by name |
 | `get_user_collections` | List another user's collections by handle or DID |
 | `get_collection` | Get a collection and its cards |
+| `get_url_collections` | List collections across Semble that contain a given URL |
 | `update_collection` 🔑 | Rename a collection or change its description/access type |
 | `delete_collection` 🔑 | Permanently delete a collection you own |
 | `update_card_collections` 🔑 | File a card into / remove it from collections, update its note |

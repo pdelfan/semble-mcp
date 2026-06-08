@@ -138,6 +138,34 @@ export function registerCollectionTools(
       ),
   );
 
+  server.registerTool(
+    'get_url_collections',
+    {
+      description:
+        'List the collections across Semble that contain a given URL.',
+      inputSchema: {
+        url: z.string().describe('The URL to look up'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ url, page, limit }) =>
+      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
+        () =>
+          client.collections.collectionsForUrl({ query: { url, page, limit } }),
+        (body) => ({
+          collections: body.collections.map(formatCollection),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
   // Authenticated tools — require SEMBLE_API_KEY.
   if (!authenticated) return;
 
