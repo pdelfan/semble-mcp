@@ -49,6 +49,11 @@ Add to `.cursor/mcp.json`:
 
 ## Tools
 
+The server also sends MCP `instructions` — a short primer on Semble's domain
+model (cards, collections, the handle/DID identifier scheme, when to use
+keyword vs. semantic vs. similar search) — so clients can use these tools well
+without it being repeated in every description.
+
 Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous mode.
 
 ### Cards
