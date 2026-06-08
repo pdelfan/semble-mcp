@@ -71,6 +71,8 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `get_url_metadata` | Fetch a URL's title/description/site without saving it (preview) |
 | `get_url_libraries` | List users who have saved a given URL, with their notes |
 | `get_url_notes` | List notes people have written about a given URL |
+| `get_card_libraries` | List the users who have a given card in their library |
+| `update_note_card` 🔑 | Update the text of an existing note card |
 | `remove_card_from_library` 🔑 | Remove a card from your library |
 
 ### Collections
@@ -82,7 +84,11 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `search_collections` | Search collections across Semble by name |
 | `get_user_collections` | List another user's collections by handle or DID |
 | `get_collection` | Get a collection and its cards |
+| `get_collection_by_at_uri` | Get a collection by owner handle + record key (AT URI parts) |
 | `get_url_collections` | List collections across Semble that contain a given URL |
+| `get_collection_followers` | List a collection's followers and total follower count |
+| `get_collection_contributors` | List users who have added cards to a collection |
+| `get_user_contributed_collections` | OPEN collections a user has contributed cards to |
 | `update_collection` 🔑 | Rename a collection or change its description/access type |
 | `delete_collection` 🔑 | Permanently delete a collection you own |
 | `update_card_collections` 🔑 | File a card into / remove it from collections, update its note |
@@ -97,6 +103,7 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `get_following_users` | Users a given user follows |
 | `get_user_followers` | Users who follow a given user |
 | `get_following_collections` | Collections a given user follows |
+| `get_follow_counts` | A user's following / followers / followed-collections counts |
 | `follow_target` 🔑 | Follow a user (DID) or collection (ID) |
 | `unfollow_target` 🔑 | Unfollow a user or collection |
 
@@ -119,6 +126,7 @@ A connection is a typed, directional link between two URLs/cards (e.g. one essay
 | `get_global_feed` | Recent activity across Semble |
 | `get_following_feed` 🔑 | Activity from users/collections you follow |
 | `get_my_notifications` 🔑 | Your notifications and unread count |
+| `get_unread_count` 🔑 | Just your unread notification count (cheap check) |
 | `mark_notifications_read` 🔑 | Mark specific notifications (or all) as read |
 
 ## Configuration

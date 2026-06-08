@@ -60,6 +60,20 @@ export function registerNotificationTools(
   );
 
   server.registerTool(
+    'get_unread_count',
+    {
+      description:
+        'Get just the number of unread notifications for the authenticated user ' +
+        '— a cheap check that avoids fetching the full notification list.',
+      inputSchema: {},
+    },
+    async () =>
+      callTool<{ unreadCount: number }>(() =>
+        client.notifications.unreadCount({ query: {} }),
+      ),
+  );
+
+  server.registerTool(
     'mark_notifications_read',
     {
       description:

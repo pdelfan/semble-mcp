@@ -8,6 +8,7 @@ import {
   formatPagination,
   formatUrlMetadata,
   formatUrlView,
+  formatUser,
   type CardLike,
   type CollectionLike,
   type PaginationLike,
@@ -273,8 +274,44 @@ export function registerCardTools(
       ),
   );
 
+  server.registerTool(
+    'get_card_libraries',
+    {
+      description:
+        'List the users who have a specific card (by card ID) in their library, ' +
+        'with the total count.',
+      inputSchema: {
+        cardId: z.string().describe('The card ID'),
+      },
+    },
+    async ({ cardId }) =>
+      callTool<{ users: UserLike[]; totalCount: number }>(
+        () => client.cards.cardLibraries({ query: { cardId } }),
+        (body) => ({
+          users: body.users.map(formatUser),
+          totalCount: body.totalCount,
+        }),
+      ),
+  );
+
   // Authenticated tools — require SEMBLE_API_KEY.
   if (!authenticated) return;
+
+  server.registerTool(
+    'update_note_card',
+    {
+      description:
+        'Update the text of an existing note card by its card ID. The cardId here ' +
+        'is the NOTE card’s ID (e.g. from a card’s note.id), not the URL card. ' +
+        'To attach a note to a URL card instead, use update_card_collections.',
+      inputSchema: {
+        cardId: z.string().describe('The note card ID to update'),
+        note: z.string().describe('The new note text'),
+      },
+    },
+    async ({ cardId, note }) =>
+      callTool(() => client.cards.cardNote({ body: { cardId, note } })),
+  );
 
   server.registerTool(
     'add_url_to_library',

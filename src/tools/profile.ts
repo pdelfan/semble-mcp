@@ -142,6 +142,43 @@ export function registerProfileTools(
       ),
   );
 
+  server.registerTool(
+    'get_follow_counts',
+    {
+      description:
+        'Get a user’s follow counts in one call: how many users they follow, ' +
+        'how many followers they have, and how many collections they follow. ' +
+        'By handle or DID. (get_user_profile with includeStats also returns these.)',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+      },
+    },
+    async ({ identifier }) =>
+      callTool<{
+        following: number;
+        followers: number;
+        followingCollections: number;
+      }>(async () => {
+        const [following, followers, collections] = await Promise.all([
+          client.users.followingCount({ query: { identifier } }),
+          client.users.userFollowersCount({ query: { identifier } }),
+          client.users.followingCollectionsCount({ query: { identifier } }),
+        ]);
+        const bad = [following, followers, collections].find(
+          (r) => !(r.status >= 200 && r.status < 300),
+        );
+        if (bad) return bad;
+        return {
+          status: 200,
+          body: {
+            following: (following.body as { count: number }).count,
+            followers: (followers.body as { count: number }).count,
+            followingCollections: (collections.body as { count: number }).count,
+          },
+        };
+      }),
+  );
+
   // Authenticated tools — require SEMBLE_API_KEY.
   if (!authenticated) return;
 

@@ -6,9 +6,11 @@ import {
   formatCard,
   formatCollection,
   formatPagination,
+  formatUser,
   type CardLike,
   type CollectionLike,
   type PaginationLike,
+  type UserLike,
 } from '../format.js';
 
 export function registerCollectionTools(
@@ -159,6 +161,152 @@ export function registerCollectionTools(
       callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
         () =>
           client.collections.collectionsForUrl({ query: { url, page, limit } }),
+        (body) => ({
+          collections: body.collections.map(formatCollection),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_collection_by_at_uri',
+    {
+      description:
+        'Get a collection and its cards by AT Protocol coordinates — the owner ' +
+        "handle and the record key (the parts of an AT URI " +
+        '"at://<handle>/network.cosmik.collection/<recordKey>"). ' +
+        'Use get_collection when you have the collection ID instead.',
+      inputSchema: {
+        handle: z.string().describe('The owning user’s handle'),
+        recordKey: z.string().describe('The collection record key (rkey)'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Cards per page'),
+      },
+    },
+    async ({ handle, recordKey, page, limit }) =>
+      callTool<
+        CollectionLike & { urlCards: CardLike[]; pagination: PaginationLike }
+      >(
+        () =>
+          client.collections.collectionByAtUri({
+            query: { handle, recordKey, page, limit },
+          }),
+        (body) => ({
+          ...formatCollection(body),
+          cards: body.urlCards.map(formatCard),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_collection_followers',
+    {
+      description:
+        'List the users who follow a collection, plus the total follower count.',
+      inputSchema: {
+        collectionId: z.string().describe('The collection ID'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ collectionId, page, limit }) =>
+      callTool<{
+        followerCount: number;
+        followers: ReturnType<typeof formatUser>[];
+        pagination: ReturnType<typeof formatPagination>;
+      }>(async () => {
+        const [list, count] = await Promise.all([
+          client.collections.collectionFollowers({
+            query: { collectionId, page, limit },
+          }),
+          client.collections.collectionFollowersCount({
+            query: { collectionId },
+          }),
+        ]);
+        const bad = [list, count].find(
+          (r) => !(r.status >= 200 && r.status < 300),
+        );
+        if (bad) return bad;
+        const listBody = list.body as { users: UserLike[]; pagination: PaginationLike };
+        const countBody = count.body as { count: number };
+        return {
+          status: 200,
+          body: {
+            followerCount: countBody.count,
+            followers: listBody.users.map(formatUser),
+            pagination: formatPagination(listBody.pagination),
+          },
+        };
+      }),
+  );
+
+  server.registerTool(
+    'get_collection_contributors',
+    {
+      description:
+        'List the users who have added cards to a collection (its contributors).',
+      inputSchema: {
+        collectionId: z.string().describe('The collection ID'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ collectionId, page, limit }) =>
+      callTool<{ users: UserLike[]; pagination: PaginationLike }>(
+        () =>
+          client.collections.collectionContributors({
+            query: { collectionId, page, limit },
+          }),
+        (body) => ({
+          contributors: body.users.map(formatUser),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_user_contributed_collections',
+    {
+      description:
+        'List the OPEN collections that a given user has contributed cards to ' +
+        '(but does not necessarily own), by handle or DID.',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+        page: z.number().int().min(1).optional().describe('Page number'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .describe('Results per page'),
+      },
+    },
+    async ({ identifier, page, limit }) =>
+      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
+        () =>
+          client.collections.openWithContributor({
+            query: { identifier, page, limit },
+          }),
         (body) => ({
           collections: body.collections.map(formatCollection),
           pagination: formatPagination(body.pagination),
