@@ -1,13 +1,39 @@
 # Semble MCP Server
 
-A [Model Context Protocol](https://modelcontextprotocol.io) server for the [Semble API](https://docs.cosmik.network/semble-api). Lets MCP clients (Claude Desktop, Claude Code, Cursor, and others) save URLs to your Semble library, search your cards, manage collections, and browse feeds.
+Give your AI assistant access to [Semble](https://semble.so) — the social library for the web, where people save, annotate, and connect the links worth keeping.
 
-## Setup
+This is a [Model Context Protocol](https://modelcontextprotocol.io) server. Once it's connected, you can just *talk* to your assistant (Claude Desktop, Claude Code, Cursor, …) about your Semble library and the wider network — no commands to memorize:
 
-1. Create a Semble API key at [semble.so/settings/api-keys](https://semble.so/settings/api-keys) — save it; you won't be able to view it again.
-2. Add the server to your MCP client with the key in the `SEMBLE_API_KEY` environment variable.
+> *"Save this article to my Semble library and file it under **AI Safety**, with a note about why it matters."*
+>
+> *"Search Semble for essays about attention and focus, then show me the three most-saved ones."*
+>
+> *"What's `alice.bsky.social` been reading lately?"*
 
-Without an API key the server runs in **anonymous mode**: only the public read-only tools (search, public profiles, public collections, the global feed) are registered, and tools that touch your library are hidden.
+Behind the scenes the assistant picks from 46 tools; you stay in plain English.
+
+## Quick start
+
+1. **Get a key** (optional — see below). Create one at [semble.so/settings/api-keys](https://semble.so/settings/api-keys). You'll only see it once, so copy it somewhere safe.
+2. **Add the server** to your client of choice.
+
+### Claude Desktop
+
+Open **Settings → Developer → Edit Config**, and add Semble under `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "semble": {
+      "command": "npx",
+      "args": ["-y", "@semble.so/mcp"],
+      "env": { "SEMBLE_API_KEY": "sk_..." }
+    }
+  }
+}
+```
+
+Restart Claude Desktop (fully quit and reopen), and Semble's tools appear.
 
 ### Claude Code
 
@@ -15,48 +41,59 @@ Without an API key the server runs in **anonymous mode**: only the public read-o
 claude mcp add semble -e SEMBLE_API_KEY=sk_... -- npx -y @semble.so/mcp
 ```
 
-### Claude Desktop
-
-Add to `claude_desktop_config.json` (Settings → Developer → Edit Config):
-
-```json
-{
-  "mcpServers": {
-    "semble": {
-      "command": "npx",
-      "args": ["-y", "@semble.so/mcp"],
-      "env": { "SEMBLE_API_KEY": "sk_..." }
-    }
-  }
-}
-```
-
 ### Cursor
 
-Add to `.cursor/mcp.json`:
+Add the same block as Claude Desktop to `.cursor/mcp.json`.
 
-```json
-{
-  "mcpServers": {
-    "semble": {
-      "command": "npx",
-      "args": ["-y", "@semble.so/mcp"],
-      "env": { "SEMBLE_API_KEY": "sk_..." }
-    }
-  }
-}
-```
+### No key? Try it anonymously
 
-## Tools
+You don't need an account to look around. **Leave `SEMBLE_API_KEY` out** and the server starts in **anonymous mode** — search, public profiles and collections, the global feed, and connections all work read-only. Anything that touches *your* library (saving, organizing, follows, notifications) simply isn't offered until you add a key, so the assistant won't try to use it.
 
-The server also sends MCP `instructions` — a short primer on Semble's domain
-model (cards, collections, the handle/DID identifier scheme, when to use
-keyword vs. semantic vs. similar search) — so clients can use these tools well
-without it being repeated in every description.
+## What you can do
 
-Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous mode.
+A taste of the kinds of things you can ask for, by theme:
 
-### Cards
+**📥 Save & organize**
+- "Add this URL to my library with a note."
+- "Make a collection called *Weekend reads* and put these three links in it."
+- "Is this article already in my library?"
+- "Move that card out of *Inbox* and into *Design*."
+
+**🔎 Search & discover**
+- "Find links about distributed systems on Semble." *(keyword)*
+- "Show me writing that feels like *the experience of getting lost in a city*." *(meaning-based)*
+- "More things like this blog post." *(similar URLs)*
+- "What's the most-saved link about LLM evals?"
+
+**🌍 Explore people & collections**
+- "Find Semble users called *Jacky*."
+- "What's in `omg.jacky.wtf`'s library?"
+- "Who follows this collection, and who's been adding to it?"
+- "Preview what this URL is before I open it."
+
+**🔗 Connect ideas** *(Semble's knowledge-graph layer)*
+- "Connect this paper as **SUPPORTS** that one."
+- "What does this URL link to — and what links back to it?"
+
+**🔔 Stay current**
+- "Anything new in my Semble notifications?"
+- "Show me what the people I follow have been saving."
+
+## A few concepts worth knowing
+
+The server tells the assistant these up front, but they help you phrase requests too:
+
+- **Cards** are saved links. The same URL can be saved by many people; each save is its own card with its own note and collections.
+- **Collections** are named groups of cards (public **OPEN** or private **CLOSED**).
+- **People** are identified by a Bluesky/AT Protocol **handle** (like `alice.bsky.social`) or a **DID**. Either works — and "find someone by name" is just `search_people` under the hood.
+- **Connections** are typed, directional links you draw between two links (one essay *SUPPORTS* another, a paper *ADDRESSES* a question) — a graph on top of your bookmarks.
+
+## Tool reference
+
+You never need to name these — the assistant chooses them — but here's the full set. Tools marked 🔑 need an API key and are hidden in anonymous mode.
+
+<details>
+<summary><strong>Cards</strong> — saving, searching, and inspecting links</summary>
 
 | Tool | Description |
 | --- | --- |
@@ -75,7 +112,10 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `update_note_card` 🔑 | Update the text of an existing note card |
 | `remove_card_from_library` 🔑 | Remove a card from your library |
 
-### Collections
+</details>
+
+<details>
+<summary><strong>Collections</strong> — grouping and curating cards</summary>
 
 | Tool | Description |
 | --- | --- |
@@ -93,7 +133,10 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `delete_collection` 🔑 | Permanently delete a collection you own |
 | `update_card_collections` 🔑 | File a card into / remove it from collections, update its note |
 
-### People & Following
+</details>
+
+<details>
+<summary><strong>People & following</strong> — profiles and the social graph</summary>
 
 | Tool | Description |
 | --- | --- |
@@ -107,7 +150,10 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `follow_target` 🔑 | Follow a user (DID) or collection (ID) |
 | `unfollow_target` 🔑 | Unfollow a user or collection |
 
-### Connections
+</details>
+
+<details>
+<summary><strong>Connections</strong> — typed links between ideas</summary>
 
 A connection is a typed, directional link between two URLs/cards (e.g. one essay `SUPPORTS` another).
 
@@ -119,7 +165,10 @@ A connection is a typed, directional link between two URLs/cards (e.g. one essay
 | `update_connection` 🔑 | Change a connection's type/note, or swap its direction |
 | `delete_connection` 🔑 | Delete a connection you own |
 
-### Feeds & Notifications
+</details>
+
+<details>
+<summary><strong>Feeds & notifications</strong> — what's happening</summary>
 
 | Tool | Description |
 | --- | --- |
@@ -129,12 +178,22 @@ A connection is a typed, directional link between two URLs/cards (e.g. one essay
 | `get_unread_count` 🔑 | Just your unread notification count (cheap check) |
 | `mark_notifications_read` 🔑 | Mark specific notifications (or all) as read |
 
+</details>
+
 ## Configuration
 
 | Variable | Required | Description |
 | --- | --- | --- |
 | `SEMBLE_API_KEY` | no | Semble API key (`sk_...`); without it only public read-only tools are available |
 | `SEMBLE_BASE_URL` | no | Override the API base URL (default `https://api.semble.so/xrpc`) |
+
+## Troubleshooting
+
+- **The tools don't show up.** Restart the client completely (Claude Desktop needs a full quit + reopen, not just closing the window).
+- **Only some tools appear.** That's anonymous mode — the `SEMBLE_API_KEY` isn't being picked up. Double-check it's set in the config above and starts with `sk_`.
+- **"API key missing or invalid" errors.** The key may be expired or revoked; generate a fresh one at [semble.so/settings/api-keys](https://semble.so/settings/api-keys).
+
+Your key lives only in your local MCP client config and is sent straight to Semble — it isn't logged or shared.
 
 ## Development
 
@@ -146,4 +205,8 @@ npm run typecheck   # tsc --noEmit
 npm run inspect     # open MCP Inspector against the built server
 ```
 
-The server speaks stdio; all diagnostics go to stderr. Built on the official [`@semble.so/api`](https://www.npmjs.com/package/@semble.so/api) client.
+The server speaks stdio; all diagnostics go to stderr. It also sends MCP `instructions` — a short primer on Semble's domain model (cards, collections, connections, the handle/DID scheme, when to use keyword vs. semantic vs. similar search) so clients use the tools well without repeating it in every description. Built on the official [`@semble.so/api`](https://www.npmjs.com/package/@semble.so/api) client.
+
+## Links
+
+- [Semble](https://semble.so) · [API docs](https://docs.cosmik.network/semble-api) · [Model Context Protocol](https://modelcontextprotocol.io)
