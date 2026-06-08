@@ -12,10 +12,31 @@ This is a [Model Context Protocol](https://modelcontextprotocol.io) server. Once
 
 Behind the scenes the assistant picks from 46 tools; you stay in plain English.
 
-## Quick start
+## Install
 
-1. **Get a key** (optional — see below). Create one at [semble.so/settings/api-keys](https://semble.so/settings/api-keys). You'll only see it once, so copy it somewhere safe.
-2. **Add the server** to your client of choice.
+This server isn't on npm yet, so you run it from the repo. You'll need [Node.js](https://nodejs.org) 18.18 or newer (`node --version` to check).
+
+Once you have the repository on your machine (clone it, or download the ZIP and unzip), open a terminal **in the project folder** and build it:
+
+```sh
+cd semble-mcp     # the folder you downloaded
+
+npm install       # install dependencies
+npm run build     # compile to dist/index.js
+```
+
+That produces `dist/index.js` — the server your AI client will run. **Note its absolute path**, you'll need it in a moment:
+
+```sh
+# prints something like /Users/you/semble-mcp/dist/index.js
+echo "$(pwd)/dist/index.js"
+```
+
+> Already have a Semble API key, or want one? Create it at [semble.so/settings/api-keys](https://semble.so/settings/api-keys) — you'll only see it once, so copy it somewhere safe. A key is **optional**; without it the server runs read-only (see [below](#no-key-try-it-anonymously)).
+
+## Connect it to your client
+
+Point your client at the built `dist/index.js` using its absolute path from above. Replace `/absolute/path/to/semble-mcp` and `your_api_key` throughout.
 
 ### Claude Desktop
 
@@ -25,25 +46,27 @@ Open **Settings → Developer → Edit Config**, and add Semble under `mcpServer
 {
   "mcpServers": {
     "semble": {
-      "command": "npx",
-      "args": ["-y", "@semble.so/mcp"],
-      "env": { "SEMBLE_API_KEY": "sk_..." }
+      "command": "node",
+      "args": ["/absolute/path/to/semble-mcp/dist/index.js"],
+      "env": { "SEMBLE_API_KEY": "your_api_key" }
     }
   }
 }
 ```
 
-Restart Claude Desktop (fully quit and reopen), and Semble's tools appear.
+Save the file, then fully **quit and reopen** Claude Desktop — Semble's tools appear.
 
 ### Claude Code
 
 ```sh
-claude mcp add semble -e SEMBLE_API_KEY=sk_... -- npx -y @semble.so/mcp
+claude mcp add semble -e SEMBLE_API_KEY=your_api_key -- node /absolute/path/to/semble-mcp/dist/index.js
 ```
 
 ### Cursor
 
 Add the same block as Claude Desktop to `.cursor/mcp.json`.
+
+> **Once `@semble.so/mcp` is published to npm**, you'll be able to skip the clone and build entirely — set `"command": "npx"` with `"args": ["-y", "@semble.so/mcp"]` (or `npx -y @semble.so/mcp` for Claude Code) and that's it.
 
 ### No key? Try it anonymously
 
