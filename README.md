@@ -68,6 +68,7 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `get_user_cards` | List another user's library cards by handle or DID |
 | `get_url_status` 🔑 | Check if a URL is already in your library (returns the card if so) |
 | `get_card` | Get a card with its note, collections, and savers |
+| `get_url_metadata` | Fetch a URL's title/description/site without saving it (preview) |
 | `remove_card_from_library` 🔑 | Remove a card from your library |
 
 ### Collections
@@ -83,14 +84,39 @@ Tools marked 🔑 require `SEMBLE_API_KEY` and are not registered in anonymous m
 | `delete_collection` 🔑 | Permanently delete a collection you own |
 | `update_card_collections` 🔑 | File a card into / remove it from collections, update its note |
 
-### Profile & Feeds
+### People & Following
 
 | Tool | Description |
 | --- | --- |
 | `get_my_profile` 🔑 | Your profile, optionally with stats |
 | `get_user_profile` | A public profile by handle or DID |
+| `search_people` | Find AT Protocol / Bluesky accounts by handle or display name |
+| `get_following_users` | Users a given user follows |
+| `get_user_followers` | Users who follow a given user |
+| `get_following_collections` | Collections a given user follows |
+| `follow_target` 🔑 | Follow a user (DID) or collection (ID) |
+| `unfollow_target` 🔑 | Unfollow a user or collection |
+
+### Connections
+
+A connection is a typed, directional link between two URLs/cards (e.g. one essay `SUPPORTS` another).
+
+| Tool | Description |
+| --- | --- |
+| `get_user_connections` | Connections a user has drawn, by handle or DID |
+| `get_url_connections` | Connections into/out of a given URL |
+| `create_connection` 🔑 | Link a source URL/card to a target with a type and note |
+| `update_connection` 🔑 | Change a connection's type/note, or swap its direction |
+| `delete_connection` 🔑 | Delete a connection you own |
+
+### Feeds & Notifications
+
+| Tool | Description |
+| --- | --- |
 | `get_global_feed` | Recent activity across Semble |
 | `get_following_feed` 🔑 | Activity from users/collections you follow |
+| `get_my_notifications` 🔑 | Your notifications and unread count |
+| `mark_notifications_read` 🔑 | Mark specific notifications (or all) as read |
 
 ## Configuration
 

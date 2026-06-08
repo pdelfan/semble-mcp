@@ -24,7 +24,11 @@ as a shared, searchable library of the web, curated by humans.
 - **User / actor** — a person, identified by an AT Protocol **handle**
   (e.g. \`alice.bsky.social\`) or a **DID** (e.g. \`did:plc:...\`). Either works
   anywhere an \`identifier\` is asked for. Get handles/DIDs from profiles, search
-  results, feed activity, or a card's savers.
+  results, feed activity, or a card's savers. Find people by name with
+  \`search_people\`.
+- **Connection** — a typed, directional link a curator draws between two URLs
+  or cards (e.g. one essay \`SUPPORTS\` another, a paper \`ADDRESSES\` a question).
+  This is Semble's knowledge-graph layer on top of saved links.
 - **Feed** — a reverse-chronological stream of activity (cards saved,
   connections made) across the network or across people you follow.
 
@@ -65,6 +69,13 @@ Most tools are **global/public**: searches, feeds, \`get_user_*\`, \`get_card\`,
   \`get_user_cards\` to explore a saver → \`get_similar_urls\` to branch outward.
 - **Organize**: \`update_card_collections\` files an existing card into / out of
   collections and edits its note (this is the way to (re)collect a card).
+- **Preview a link**: \`get_url_metadata\` resolves a bare URL's title/site/type
+  without saving it — useful before \`add_url_to_library\`.
+- **Relate ideas**: \`create_connection\` links two URLs/cards with a type
+  (\`SUPPORTS\`, \`OPPOSES\`, \`LEADS_TO\`, …); read them with \`get_url_connections\`
+  (what links to/from a URL) or \`get_user_connections\`.
+- **Follow graph**: \`follow_target\`/\`unfollow_target\` act on a user DID or a
+  collection ID; \`get_following_users\`/\`get_user_followers\` read the graph.
 
 ## Conventions
 

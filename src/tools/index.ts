@@ -2,7 +2,9 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { registerCardTools } from './cards.js';
 import { registerCollectionTools } from './collections.js';
+import { registerConnectionTools } from './connections.js';
 import { registerFeedTools } from './feeds.js';
+import { registerNotificationTools } from './notifications.js';
 import { registerProfileTools } from './profile.js';
 
 /**
@@ -19,4 +21,6 @@ export function registerAllTools(
   registerCollectionTools(server, client, authenticated);
   registerProfileTools(server, client, authenticated);
   registerFeedTools(server, client, authenticated);
+  registerConnectionTools(server, client, authenticated);
+  registerNotificationTools(server, client, authenticated);
 }

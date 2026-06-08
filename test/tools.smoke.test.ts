@@ -9,11 +9,18 @@ const PUBLIC_TOOLS = [
   'get_user_cards',
   'get_similar_urls',
   'get_card',
+  'get_url_metadata',
   'search_collections',
   'get_user_collections',
   'get_collection',
   'get_user_profile',
+  'search_people',
+  'get_following_users',
+  'get_user_followers',
+  'get_following_collections',
   'get_global_feed',
+  'get_user_connections',
+  'get_url_connections',
 ];
 
 const AUTHENTICATED_TOOLS = [
@@ -27,7 +34,14 @@ const AUTHENTICATED_TOOLS = [
   'delete_collection',
   'update_card_collections',
   'get_my_profile',
+  'follow_target',
+  'unfollow_target',
   'get_following_feed',
+  'create_connection',
+  'update_connection',
+  'delete_connection',
+  'get_my_notifications',
+  'mark_notifications_read',
 ];
 
 const EXPECTED_TOOLS = [...PUBLIC_TOOLS, ...AUTHENTICATED_TOOLS];
@@ -45,6 +59,7 @@ function mockClient() {
         cardsByUser: ok,
         urlLibraryStatus: ok,
         cardById: ok,
+        urlMetadata: ok,
         removeFromLibrary: ok,
         urlCardAssociations: ok,
       },
@@ -57,16 +72,36 @@ function mockClient() {
         updateCollection: ok,
         deleteCollection: ok,
       },
-      users: { myProfile: ok, userProfile: ok },
+      users: {
+        myProfile: ok,
+        userProfile: ok,
+        followTarget: ok,
+        unfollowTarget: ok,
+        followingUsers: ok,
+        userFollowers: ok,
+        followingCollections: ok,
+      },
       feeds: { globalFeed: ok, followingFeed: ok },
-      search: { semantic: ok, similarUrls: ok },
+      search: { semantic: ok, similarUrls: ok, atProtoAccounts: ok },
+      connections: {
+        connectionsByUser: ok,
+        connectionsForUrl: ok,
+        createConnection: ok,
+        updateConnection: ok,
+        deleteConnection: ok,
+      },
+      notifications: {
+        myNotifications: ok,
+        markRead: ok,
+        markAllRead: ok,
+      },
     } as unknown as SembleClient,
     ok,
   };
 }
 
 describe('registerAllTools', () => {
-  it('registers all 21 curated tools', () => {
+  it('registers all curated tools', () => {
     const server = new McpServer({ name: 'test', version: '0' });
     const { client } = mockClient();
     registerAllTools(server, client);
@@ -78,7 +113,7 @@ describe('registerAllTools', () => {
     expect(names.sort()).toEqual([...EXPECTED_TOOLS].sort());
   });
 
-  it('registers only the 10 public tools in anonymous mode', () => {
+  it('registers only the public tools in anonymous mode', () => {
     const server = new McpServer({ name: 'test', version: '0' });
     const { client } = mockClient();
     registerAllTools(server, client, false);

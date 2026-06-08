@@ -2,14 +2,32 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
-import { formatUser, type UserLike } from '../format.js';
+import {
+  formatCollection,
+  formatPagination,
+  formatProfileView,
+  formatUser,
+  type CollectionLike,
+  type PaginationLike,
+  type ProfileViewLike,
+  type UserLike,
+} from '../format.js';
+
+const pageSchema = z.number().int().min(1).optional().describe('Page number');
+const limitSchema = z
+  .number()
+  .int()
+  .min(1)
+  .max(100)
+  .optional()
+  .describe('Results per page');
 
 export function registerProfileTools(
   server: McpServer,
   client: SembleClient,
   authenticated: boolean,
 ) {
-  // Public tool — works without an API key.
+  // Public tools — work without an API key.
   server.registerTool(
     'get_user_profile',
     {
@@ -30,7 +48,101 @@ export function registerProfileTools(
       ),
   );
 
-  // Authenticated tool — requires SEMBLE_API_KEY.
+  server.registerTool(
+    'search_people',
+    {
+      description:
+        'Search for people (AT Protocol / Bluesky accounts) by handle or display name. ' +
+        'Returns handles and DIDs you can pass to get_user_profile, get_user_cards, ' +
+        'or follow_target. This is how you find a user when you only know their name.',
+      inputSchema: {
+        query: z.string().describe('Name or handle to search for'),
+        limit: limitSchema,
+        cursor: z
+          .string()
+          .optional()
+          .describe('Pagination cursor from a previous response'),
+      },
+    },
+    async ({ query, limit, cursor }) =>
+      callTool<{ actors: ProfileViewLike[]; cursor?: string }>(
+        () =>
+          client.search.atProtoAccounts({ query: { q: query, limit, cursor } }),
+        (body) => ({
+          accounts: body.actors.map(formatProfileView),
+          nextCursor: body.cursor,
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_following_users',
+    {
+      description:
+        'List the users that a given user follows, by handle or DID.',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+        page: pageSchema,
+        limit: limitSchema,
+      },
+    },
+    async ({ identifier, page, limit }) =>
+      callTool<{ users: UserLike[]; pagination: PaginationLike }>(
+        () =>
+          client.users.followingUsers({ query: { identifier, page, limit } }),
+        (body) => ({
+          users: body.users.map(formatUser),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_user_followers',
+    {
+      description: 'List the users who follow a given user, by handle or DID.',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+        page: pageSchema,
+        limit: limitSchema,
+      },
+    },
+    async ({ identifier, page, limit }) =>
+      callTool<{ users: UserLike[]; pagination: PaginationLike }>(
+        () =>
+          client.users.userFollowers({ query: { identifier, page, limit } }),
+        (body) => ({
+          users: body.users.map(formatUser),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_following_collections',
+    {
+      description:
+        'List the collections that a given user follows, by handle or DID.',
+      inputSchema: {
+        identifier: z.string().describe('User handle or DID'),
+        page: pageSchema,
+        limit: limitSchema,
+      },
+    },
+    async ({ identifier, page, limit }) =>
+      callTool<{ collections: CollectionLike[]; pagination: PaginationLike }>(
+        () =>
+          client.users.followingCollections({
+            query: { identifier, page, limit },
+          }),
+        (body) => ({
+          collections: body.collections.map(formatCollection),
+          pagination: formatPagination(body.pagination),
+        }),
+      ),
+  );
+
+  // Authenticated tools — require SEMBLE_API_KEY.
   if (!authenticated) return;
 
   server.registerTool(
@@ -50,6 +162,49 @@ export function registerProfileTools(
       callTool<UserLike>(
         () => client.users.myProfile({ query: { includeStats } }),
         formatUser,
+      ),
+  );
+
+  server.registerTool(
+    'follow_target',
+    {
+      description:
+        'Follow a user or a collection as the authenticated user. ' +
+        'For a user, targetId is their DID (get it from search_people or ' +
+        'get_user_profile); for a collection, targetId is the collection ID.',
+      inputSchema: {
+        targetId: z
+          .string()
+          .describe('A user DID, or a collection ID, to follow'),
+        targetType: z
+          .enum(['USER', 'COLLECTION'])
+          .describe('Whether the target is a user or a collection'),
+      },
+    },
+    async ({ targetId, targetType }) =>
+      callTool(() =>
+        client.users.followTarget({ body: { targetId, targetType } }),
+      ),
+  );
+
+  server.registerTool(
+    'unfollow_target',
+    {
+      description:
+        'Stop following a user or collection you currently follow. ' +
+        'targetId is the user DID or the collection ID.',
+      inputSchema: {
+        targetId: z
+          .string()
+          .describe('A user DID, or a collection ID, to unfollow'),
+        targetType: z
+          .enum(['USER', 'COLLECTION'])
+          .describe('Whether the target is a user or a collection'),
+      },
+    },
+    async ({ targetId, targetType }) =>
+      callTool(() =>
+        client.users.unfollowTarget({ body: { targetId, targetType } }),
       ),
   );
 }

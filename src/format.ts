@@ -163,3 +163,99 @@ export function formatPagination(pagination: PaginationLike | undefined) {
     nextCursor: pagination.nextCursor,
   });
 }
+
+/** AT Protocol account from people search (search_people). */
+export interface ProfileViewLike {
+  did: string;
+  handle: string;
+  displayName?: string;
+  description?: string;
+}
+
+export function formatProfileView(profile: ProfileViewLike) {
+  return compact({
+    handle: profile.handle,
+    did: profile.did,
+    displayName: profile.displayName,
+    description: profile.description,
+  });
+}
+
+export interface UrlMetadataLike {
+  url: string;
+  title?: string;
+  description?: string;
+  author?: string;
+  publishedDate?: string;
+  siteName?: string;
+  type?: string;
+  doi?: string;
+  isbn?: string;
+}
+
+export function formatUrlMetadata(metadata: UrlMetadataLike) {
+  return compact({
+    url: metadata.url,
+    title: metadata.title,
+    description: metadata.description,
+    siteName: metadata.siteName,
+    contentAuthor: metadata.author,
+    publishedDate: metadata.publishedDate,
+    type: metadata.type,
+    doi: metadata.doi,
+    isbn: metadata.isbn,
+  });
+}
+
+/** A typed link between two URLs/cards (connections.*). */
+export interface ConnectionLike {
+  connection: {
+    id: string;
+    type?: string;
+    note?: string;
+    createdAt?: string;
+    curator?: UserLike;
+  };
+  source: UrlViewLike;
+  target: UrlViewLike;
+}
+
+export function formatConnection(item: ConnectionLike) {
+  return compact({
+    id: item.connection.id,
+    type: item.connection.type,
+    note: item.connection.note,
+    curator: item.connection.curator?.handle,
+    createdAt: item.connection.createdAt,
+    source: formatUrlView(item.source),
+    target: formatUrlView(item.target),
+  });
+}
+
+export interface NotificationLike {
+  id: string;
+  type: string;
+  read: boolean;
+  user: UserLike;
+  createdAt: string;
+  card?: CardLike;
+  collections?: CollectionLike[];
+  connection?: ConnectionLike;
+  followTargetType?: string;
+}
+
+export function formatNotification(item: NotificationLike) {
+  return compact({
+    id: item.id,
+    type: item.type,
+    read: item.read,
+    actor: item.user?.handle,
+    createdAt: item.createdAt,
+    card: item.card ? formatCard(item.card) : undefined,
+    collections: item.collections?.length
+      ? item.collections.map((c) => c.name)
+      : undefined,
+    connection: item.connection ? formatConnection(item.connection) : undefined,
+    followTargetType: item.followTargetType,
+  });
+}

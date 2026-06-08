@@ -6,10 +6,12 @@ import {
   formatCard,
   formatCollection,
   formatPagination,
+  formatUrlMetadata,
   formatUrlView,
   type CardLike,
   type CollectionLike,
   type PaginationLike,
+  type UrlMetadataLike,
   type UrlViewLike,
 } from '../format.js';
 
@@ -177,6 +179,32 @@ export function registerCardTools(
         (body) => ({
           ...formatCard(body),
           savedByUsers: body.libraries?.map((u) => u.handle),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'get_url_metadata',
+    {
+      description:
+        'Fetch metadata (title, description, site, author, type) for any URL ' +
+        'without saving it. Use to preview a link before add_url_to_library, ' +
+        'or to resolve what a bare URL points to. Set includeStats for ' +
+        'aggregate library/note/collection/connection counts on Semble.',
+      inputSchema: {
+        url: z.string().describe('The URL to fetch metadata for'),
+        includeStats: z
+          .boolean()
+          .optional()
+          .describe('Include aggregate Semble stats for this URL'),
+      },
+    },
+    async ({ url, includeStats }) =>
+      callTool<{ metadata: UrlMetadataLike; stats?: unknown }>(
+        () => client.cards.urlMetadata({ query: { url, includeStats } }),
+        (body) => ({
+          metadata: formatUrlMetadata(body.metadata),
+          stats: body.stats,
         }),
       ),
   );
