@@ -149,6 +149,40 @@ describe('registerAllTools', () => {
     expect(names.sort()).toEqual([...PUBLIC_TOOLS].sort());
   });
 
+  it('annotates every tool with a title and openWorldHint, and flags reads/destructive ops', () => {
+    const server = new McpServer({ name: 'test', version: '0' });
+    const { client } = mockClient();
+    registerAllTools(server, client);
+    const tools = (
+      server as unknown as {
+        _registeredTools: Record<
+          string,
+          {
+            annotations?: {
+              title?: string;
+              readOnlyHint?: boolean;
+              destructiveHint?: boolean;
+              openWorldHint?: boolean;
+            };
+          }
+        >;
+      }
+    )._registeredTools;
+
+    for (const tool of Object.values(tools)) {
+      expect(tool.annotations).toBeDefined();
+      expect(tool.annotations!.title).toBeTruthy();
+      expect(tool.annotations!.openWorldHint).toBe(true);
+    }
+
+    // Spot-check the read/destructive categorization.
+    expect(tools['get_card']!.annotations!.readOnlyHint).toBe(true);
+    expect(tools['delete_collection']!.annotations!.destructiveHint).toBe(true);
+    expect(tools['remove_card_from_library']!.annotations!.destructiveHint).toBe(
+      true,
+    );
+  });
+
   it('maps add_url_to_library args to a body call', async () => {
     const server = new McpServer({ name: 'test', version: '0' });
     const { client } = mockClient();

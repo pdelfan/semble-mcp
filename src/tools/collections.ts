@@ -3,6 +3,12 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
 import {
+  READ_ONLY,
+  WRITE,
+  WRITE_IDEMPOTENT,
+  DESTRUCTIVE,
+} from '../annotations.js';
+import {
   formatCard,
   formatCollection,
   formatPagination,
@@ -22,6 +28,7 @@ export function registerCollectionTools(
   server.registerTool(
     'search_collections',
     {
+      annotations: { title: 'Search collections', ...READ_ONLY },
       description:
         'Search collections across all of Semble by name, paginated. ' +
         'Optionally filter to one user (identifier) or by access type.',
@@ -61,6 +68,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_user_collections',
     {
+      annotations: { title: "Get a user's collections", ...READ_ONLY },
       description:
         "List another user's Semble collections, paginated. " +
         'Identify the user by handle or DID. Optionally filter by name with searchText.',
@@ -96,6 +104,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_collection',
     {
+      annotations: { title: 'Get a collection', ...READ_ONLY },
       description:
         'Get a Semble collection and the cards in it by collection ID, paginated.',
       inputSchema: {
@@ -143,6 +152,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_url_collections',
     {
+      annotations: { title: 'List collections with a URL', ...READ_ONLY },
       description:
         'List the collections across Semble that contain a given URL.',
       inputSchema: {
@@ -171,6 +181,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_collection_by_at_uri',
     {
+      annotations: { title: 'Get a collection by AT URI', ...READ_ONLY },
       description:
         'Get a collection and its cards by AT Protocol coordinates — the owner ' +
         "handle and the record key (the parts of an AT URI " +
@@ -208,6 +219,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_collection_followers',
     {
+      annotations: { title: 'List collection followers', ...READ_ONLY },
       description:
         'List the users who follow a collection, plus the total follower count.',
       inputSchema: {
@@ -256,6 +268,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_collection_contributors',
     {
+      annotations: { title: 'List collection contributors', ...READ_ONLY },
       description:
         'List the users who have added cards to a collection (its contributors).',
       inputSchema: {
@@ -286,6 +299,7 @@ export function registerCollectionTools(
   server.registerTool(
     'get_user_contributed_collections',
     {
+      annotations: { title: 'List contributed-to collections', ...READ_ONLY },
       description:
         'List the OPEN collections that a given user has contributed cards to ' +
         '(but does not necessarily own), by handle or DID.',
@@ -320,6 +334,7 @@ export function registerCollectionTools(
   server.registerTool(
     'create_collection',
     {
+      annotations: { title: 'Create a collection', ...WRITE },
       description:
         'Create a new Semble collection. OPEN collections accept contributions ' +
         'from anyone; CLOSED collections are curated only by you. Returns the new collection ID.',
@@ -343,6 +358,7 @@ export function registerCollectionTools(
   server.registerTool(
     'list_my_collections',
     {
+      annotations: { title: 'List my collections', ...READ_ONLY },
       description:
         'List your Semble collections, paginated. Optionally filter by name with searchText.',
       inputSchema: {
@@ -376,6 +392,7 @@ export function registerCollectionTools(
   server.registerTool(
     'update_collection',
     {
+      annotations: { title: 'Update a collection', ...WRITE_IDEMPOTENT },
       description:
         "Update a collection's name, description, or access type. " +
         'name is required by the API — pass the current name to keep it unchanged.',
@@ -402,6 +419,7 @@ export function registerCollectionTools(
   server.registerTool(
     'delete_collection',
     {
+      annotations: { title: 'Delete a collection', ...DESTRUCTIVE },
       description:
         'Permanently delete a collection you own. Cards filed in it stay in ' +
         'your library; only the collection itself is removed. This cannot be undone.',
@@ -418,6 +436,7 @@ export function registerCollectionTools(
   server.registerTool(
     'update_card_collections',
     {
+      annotations: { title: 'File card into collections', ...WRITE_IDEMPOTENT },
       description:
         'File an existing card into collections and/or remove it from collections; ' +
         'can also update the card note in the same call. Use card IDs from ' +

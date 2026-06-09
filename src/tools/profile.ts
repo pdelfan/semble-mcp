@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
+import { READ_ONLY, WRITE_IDEMPOTENT, DESTRUCTIVE } from '../annotations.js';
 import {
   formatCollection,
   formatPagination,
@@ -31,6 +32,7 @@ export function registerProfileTools(
   server.registerTool(
     'get_user_profile',
     {
+      annotations: { title: 'Get a user profile', ...READ_ONLY },
       description:
         'Get a public Semble user profile by handle (e.g. "alice.bsky.social") or DID.',
       inputSchema: {
@@ -51,6 +53,7 @@ export function registerProfileTools(
   server.registerTool(
     'search_people',
     {
+      annotations: { title: 'Search people', ...READ_ONLY },
       description:
         'Search for people (AT Protocol / Bluesky accounts) by handle or display name. ' +
         'Returns handles and DIDs you can pass to get_user_profile, get_user_cards, ' +
@@ -78,6 +81,7 @@ export function registerProfileTools(
   server.registerTool(
     'get_following_users',
     {
+      annotations: { title: 'List who a user follows', ...READ_ONLY },
       description:
         'List the users that a given user follows, by handle or DID.',
       inputSchema: {
@@ -100,6 +104,7 @@ export function registerProfileTools(
   server.registerTool(
     'get_user_followers',
     {
+      annotations: { title: "List a user's followers", ...READ_ONLY },
       description: 'List the users who follow a given user, by handle or DID.',
       inputSchema: {
         identifier: z.string().describe('User handle or DID'),
@@ -121,6 +126,7 @@ export function registerProfileTools(
   server.registerTool(
     'get_following_collections',
     {
+      annotations: { title: 'List collections a user follows', ...READ_ONLY },
       description:
         'List the collections that a given user follows, by handle or DID.',
       inputSchema: {
@@ -145,6 +151,7 @@ export function registerProfileTools(
   server.registerTool(
     'get_follow_counts',
     {
+      annotations: { title: 'Get follow counts', ...READ_ONLY },
       description:
         'Get a user’s follow counts in one call: how many users they follow, ' +
         'how many followers they have, and how many collections they follow. ' +
@@ -185,6 +192,7 @@ export function registerProfileTools(
   server.registerTool(
     'get_my_profile',
     {
+      annotations: { title: 'Get my profile', ...READ_ONLY },
       description:
         'Get the authenticated Semble user profile (handle, name, bio). ' +
         'Set includeStats for follower/following/card/collection counts.',
@@ -205,6 +213,7 @@ export function registerProfileTools(
   server.registerTool(
     'follow_target',
     {
+      annotations: { title: 'Follow a user or collection', ...WRITE_IDEMPOTENT },
       description:
         'Follow a user or a collection as the authenticated user. ' +
         'For a user, targetId is their DID (get it from search_people or ' +
@@ -227,6 +236,7 @@ export function registerProfileTools(
   server.registerTool(
     'unfollow_target',
     {
+      annotations: { title: 'Unfollow a user or collection', ...DESTRUCTIVE },
       description:
         'Stop following a user or collection you currently follow. ' +
         'targetId is the user DID or the collection ID.',

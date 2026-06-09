@@ -3,6 +3,12 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
 import {
+  READ_ONLY,
+  WRITE,
+  WRITE_IDEMPOTENT,
+  DESTRUCTIVE,
+} from '../annotations.js';
+import {
   formatCard,
   formatCollection,
   formatPagination,
@@ -49,6 +55,7 @@ export function registerCardTools(
   server.registerTool(
     'search_urls',
     {
+      annotations: { title: 'Search URLs', ...READ_ONLY },
       description:
         'Full-text search URLs across all of Semble by title, description, or URL. ' +
         'Searches everyone’s saved cards, not just your library.',
@@ -75,6 +82,7 @@ export function registerCardTools(
   server.registerTool(
     'semantic_search',
     {
+      annotations: { title: 'Semantic search URLs', ...READ_ONLY },
       description:
         'Natural-language semantic (vector) search across URLs on Semble. ' +
         'Use for conceptual queries; use search_urls for exact terms. ' +
@@ -105,6 +113,7 @@ export function registerCardTools(
   server.registerTool(
     'get_user_cards',
     {
+      annotations: { title: "Get a user's cards", ...READ_ONLY },
       description:
         "List the cards in another user's Semble library, paginated. " +
         'Identify the user by handle or DID (from get_user_profile or search results).',
@@ -136,6 +145,7 @@ export function registerCardTools(
   server.registerTool(
     'get_similar_urls',
     {
+      annotations: { title: 'Find similar URLs', ...READ_ONLY },
       description:
         'Find URLs on Semble semantically similar to a given URL ("more like this"). ' +
         'Use semantic_search instead when starting from a text query.',
@@ -168,6 +178,7 @@ export function registerCardTools(
   server.registerTool(
     'get_card',
     {
+      annotations: { title: 'Get a card', ...READ_ONLY },
       description:
         'Get a single Semble card by ID, including its note, collections, ' +
         'and which users have it in their library.',
@@ -188,6 +199,7 @@ export function registerCardTools(
   server.registerTool(
     'get_url_metadata',
     {
+      annotations: { title: 'Get URL metadata', ...READ_ONLY },
       description:
         'Fetch metadata (title, description, site, author, type) for any URL ' +
         'without saving it. Use to preview a link before add_url_to_library, ' +
@@ -214,6 +226,7 @@ export function registerCardTools(
   server.registerTool(
     'get_url_libraries',
     {
+      annotations: { title: 'List savers of a URL', ...READ_ONLY },
       description:
         'List the users who have saved a given URL to their library, with each ' +
         "saver's note and when they saved it. Shows who finds a link valuable.",
@@ -243,6 +256,7 @@ export function registerCardTools(
   server.registerTool(
     'get_url_notes',
     {
+      annotations: { title: 'List notes on a URL', ...READ_ONLY },
       description:
         'List the notes people have written about a given URL across Semble.',
       inputSchema: {
@@ -277,6 +291,7 @@ export function registerCardTools(
   server.registerTool(
     'get_card_libraries',
     {
+      annotations: { title: 'List savers of a card', ...READ_ONLY },
       description:
         'List the users who have a specific card (by card ID) in their library, ' +
         'with the total count.',
@@ -300,6 +315,7 @@ export function registerCardTools(
   server.registerTool(
     'update_note_card',
     {
+      annotations: { title: 'Update a note card', ...WRITE_IDEMPOTENT },
       description:
         'Update the text of an existing note card by its card ID. The cardId here ' +
         'is the NOTE card’s ID (e.g. from a card’s note.id), not the URL card. ' +
@@ -316,6 +332,7 @@ export function registerCardTools(
   server.registerTool(
     'add_url_to_library',
     {
+      annotations: { title: 'Save a URL to library', ...WRITE },
       description:
         'Save a URL to the Semble library as a card, optionally with a note ' +
         'and/or filed into collections. Returns the new card ID.',
@@ -337,6 +354,7 @@ export function registerCardTools(
   server.registerTool(
     'list_my_cards',
     {
+      annotations: { title: 'List my cards', ...READ_ONLY },
       description:
         'List the cards saved in your Semble library, paginated. ' +
         'Set uncollected to true to see cards not yet filed into any collection.',
@@ -371,6 +389,7 @@ export function registerCardTools(
   server.registerTool(
     'get_url_status',
     {
+      annotations: { title: 'Check if a URL is saved', ...READ_ONLY },
       description:
         'Check whether a URL is already saved in your Semble library. ' +
         'If saved, returns the existing card and its collections — use this ' +
@@ -393,6 +412,7 @@ export function registerCardTools(
   server.registerTool(
     'remove_card_from_library',
     {
+      annotations: { title: 'Remove a card from library', ...DESTRUCTIVE },
       description:
         'Remove a card from your Semble library (also removes it from your collections).',
       inputSchema: {

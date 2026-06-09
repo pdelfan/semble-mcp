@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
+import { READ_ONLY, WRITE, WRITE_IDEMPOTENT, DESTRUCTIVE } from '../annotations.js';
 import {
   formatConnection,
   formatPagination,
@@ -55,6 +56,7 @@ export function registerConnectionTools(
   server.registerTool(
     'get_user_connections',
     {
+      annotations: { title: "Get a user's connections", ...READ_ONLY },
       description:
         'List the connections a user has drawn between URLs/cards, by handle or DID. ' +
         'Connections are typed, directional links (SUPPORTS, OPPOSES, LEADS_TO, …).',
@@ -81,6 +83,7 @@ export function registerConnectionTools(
   server.registerTool(
     'get_url_connections',
     {
+      annotations: { title: 'Get connections for a URL', ...READ_ONLY },
       description:
         'List the connections involving a given URL — what it links to and what ' +
         'links to it. Use direction to filter: forward = this URL is the source, ' +
@@ -115,6 +118,7 @@ export function registerConnectionTools(
   server.registerTool(
     'create_connection',
     {
+      annotations: { title: 'Create a connection', ...WRITE },
       description:
         'Create a typed, directional link from a source to a target. Each side is ' +
         'either a URL or a card ID. Example: connect essay A as SUPPORTS essay B. ' +
@@ -157,6 +161,7 @@ export function registerConnectionTools(
   server.registerTool(
     'update_connection',
     {
+      annotations: { title: 'Update a connection', ...WRITE_IDEMPOTENT },
       description:
         "Update one of your connections: change its type or note, clear the note " +
         '(removeNote), or swap its source and target direction (swap).',
@@ -185,6 +190,7 @@ export function registerConnectionTools(
   server.registerTool(
     'delete_connection',
     {
+      annotations: { title: 'Delete a connection', ...DESTRUCTIVE },
       description: 'Permanently delete one of your connections by ID.',
       inputSchema: {
         connectionId: z.string().describe('The connection ID to delete'),

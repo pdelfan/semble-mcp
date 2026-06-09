@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
+import { READ_ONLY } from '../annotations.js';
 import {
   formatFeedItem,
   formatPagination,
@@ -53,6 +54,7 @@ export function registerFeedTools(
   server.registerTool(
     'get_global_feed',
     {
+      annotations: { title: 'Get the global feed', ...READ_ONLY },
       description:
         'Get recent public activity across all Semble users (cards saved, connections made).',
       inputSchema: feedInputSchema,
@@ -73,6 +75,7 @@ export function registerFeedTools(
   server.registerTool(
     'get_following_feed',
     {
+      annotations: { title: 'Get the following feed', ...READ_ONLY },
       description:
         'Get recent activity from the users and collections you follow on Semble.',
       inputSchema: feedInputSchema,

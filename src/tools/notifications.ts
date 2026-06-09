@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SembleClient } from '../client.js';
 import { callTool } from '../result.js';
+import { READ_ONLY, WRITE_IDEMPOTENT } from '../annotations.js';
 import {
   formatNotification,
   formatPagination,
@@ -23,6 +24,7 @@ export function registerNotificationTools(
   server.registerTool(
     'get_my_notifications',
     {
+      annotations: { title: 'Get my notifications', ...READ_ONLY },
       description:
         'List the authenticated user’s notifications (someone saved your card, ' +
         'followed you, connected your URL, …), with the current unread count.',
@@ -62,6 +64,7 @@ export function registerNotificationTools(
   server.registerTool(
     'get_unread_count',
     {
+      annotations: { title: 'Get unread notification count', ...READ_ONLY },
       description:
         'Get just the number of unread notifications for the authenticated user ' +
         '— a cheap check that avoids fetching the full notification list.',
@@ -76,6 +79,7 @@ export function registerNotificationTools(
   server.registerTool(
     'mark_notifications_read',
     {
+      annotations: { title: 'Mark notifications read', ...WRITE_IDEMPOTENT },
       description:
         'Mark notifications as read. Pass notificationIds to mark specific ones; ' +
         'omit it (or pass an empty list) to mark all of your notifications as read.',
