@@ -79,6 +79,7 @@ A taste of the kinds of things you can ask for, by theme:
 - "Make a collection called *Weekend reads* and put these three links in it."
 - "Is this article already in my library?"
 - "Move that card out of *Inbox* and into *Design*."
+- "Go through my library, group my cards by theme, and file each one into a matching collection — create new collections for any topics that don't have one yet."
 
 **🔎 Search & discover**
 - "Find links about distributed systems on Semble." *(keyword)*
