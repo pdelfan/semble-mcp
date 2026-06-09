@@ -14,7 +14,7 @@ Behind the scenes the assistant picks from 46 tools; you stay in plain English.
 
 ## Install
 
-This server isn't on npm yet, so you run it from the repo. You'll need [Node.js](https://nodejs.org) 18.18 or newer (`node --version` to check).
+Install it from the repo. You'll need [Node.js](https://nodejs.org) 18.18 or newer (`node --version` to check).
 
 Once you have the repository on your machine (clone it, or download the ZIP and unzip), open a terminal **in the project folder** and build it:
 
@@ -65,8 +65,6 @@ claude mcp add semble -e SEMBLE_API_KEY=your_api_key -- node /absolute/path/to/s
 ### Cursor
 
 Add the same block as Claude Desktop to `.cursor/mcp.json`.
-
-> **Once `@semble.so/mcp` is published to npm**, you'll be able to skip the clone and build entirely — set `"command": "npx"` with `"args": ["-y", "@semble.so/mcp"]` (or `npx -y @semble.so/mcp` for Claude Code) and that's it.
 
 ### No key? Try it anonymously
 
