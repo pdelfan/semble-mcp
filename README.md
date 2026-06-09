@@ -80,26 +80,42 @@ A taste of the kinds of things you can ask for, by theme:
 - "Is this article already in my library?"
 - "Move that card out of *Inbox* and into *Design*."
 - "Go through my library, group my cards by theme, and file each one into a matching collection — create new collections for any topics that don't have one yet."
+- "Find my uncollected cards and suggest a home for each, then file them — creating collections for any new themes."
+- "Point out cards in my collections that have drifted off-topic from the collection's theme."
+- "Go through my cards that have no note and draft a one-line note for each, based on what the link is about."
+- "Merge my *ML* and *Machine Learning* collections into one, and delete the empty one."
 
 **🔎 Search & discover**
 - "Find links about distributed systems on Semble." *(keyword)*
 - "Show me writing that feels like *the experience of getting lost in a city*." *(meaning-based)*
 - "More things like this blog post." *(similar URLs)*
 - "What's the most-saved link about LLM evals?"
+- "Build a starter collection on *AI evals* from the most-saved Semble links about it."
+- "I'm new to *type design* — build me an ordered learning path as a collection, easiest first."
+- "Compare my library to `omg.jacky.wtf`'s on *typography* — what are they reading that I'm missing?"
 
 **🌍 Explore people & collections**
 - "Find Semble users called *Jacky*."
 - "What's in `omg.jacky.wtf`'s library?"
 - "Who follows this collection, and who's been adding to it?"
 - "Preview what this URL is before I open it."
+- "Find Semble users whose libraries overlap most with mine on *climate tech*, and show what they've saved that I haven't."
+- "Suggest five people to follow based on what's in my library, with a reason for each — then follow the ones I approve."
+- "For this link, who else has saved it and what did they note about it?"
 
 **🔗 Connect ideas** *(Semble's knowledge-graph layer)*
 - "Connect this paper as **SUPPORTS** that one."
 - "What does this URL link to — and what links back to it?"
+- "Look at my library and propose typed connections between related cards (this *critiques* that, this *builds on* that), then create them."
+- "Lay out the Semble links that **SUPPORT** vs **OPPOSE** the claim that *remote work is better* — show both sides."
+- "Starting from this paper, follow the **LEADS_TO** connections to trace how the idea evolved."
 
 **🔔 Stay current**
 - "Anything new in my Semble notifications?"
 - "Show me what the people I follow have been saving."
+- "Give me a morning digest: new notifications, what people I follow saved, and anything in the global feed matching my interests."
+- "Scan the global feed and tell me the three themes people are saving most right now."
+- "Here's a Bluesky thread full of links — save them all to my library and group them sensibly."
 
 ## A few concepts worth knowing
 
