@@ -90,7 +90,6 @@ A taste of the kinds of things you can ask for, by theme:
 - "Find links about distributed systems on Semble." _(keyword)_
 - "Compare my library to `@alice.bsky.social`'s on _typography_ — what are they reading that I'm missing?"
 - "More things like this blog post." _(similar URLs)_
-- "What's the most-saved link about LLM evals?"
 - "Build a starter collection on _AI evals_ from the most-saved Semble links about it."
 - "I'm new to _type design_ — build me an ordered learning path as a collection, easiest first."
 
@@ -98,12 +97,12 @@ A taste of the kinds of things you can ask for, by theme:
 
 - "What's in `@alice.bsky.social`'s library?"
 - "Find Semble users whose libraries overlap most with mine on _climate tech_, and show what they've saved that I haven't."
-- "Suggest five people to follow based on what's in my library, with a reason for each — then follow the ones I approve."
+- "Suggest five people to follow based on what's in my library, with a reason for each, then follow the ones I approve."
 - "For this link, who else has saved it and what did they note about it?"
 
 **🔗 Connect ideas** _(Semble's knowledge-graph layer)_
 
-- "What does this URL link to — and what links back to it?"
+- "What does this URL link to and what links back to it?"
 - "Look at my library and propose typed connections between related cards (this _critiques_ that, this _builds on_ that), then create them."
 - "Lay out the Semble links that **SUPPORT** vs **OPPOSE** the claim that _remote work is better_ — show both sides."
 - "Starting from this paper, follow the **LEADS_TO** connections to trace how the idea evolved."
